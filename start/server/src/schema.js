@@ -1,51 +1,69 @@
-const {gql} = require('apollo-server');
+const { gql } = require("apollo-server");
 
 const typeDefs = gql`
-    type Launch {
-        id: ID!
-        site: String
-        mission: Mission
-        rocket: Rocket
-        isBooked: Boolean!
-    }
-    type Rocket {
-        id: ID!
-        name: String
-        type: String
-    }
-    type User {
-        id: ID!
-        email: String!
-        trips: [Launch]!
-        token: String
-    }
-    type Mission {
-        name: String 
-        missionPatch(size:PatchSize): String 
-    }
+  type Launch {
+    id: ID!
+    site: String
+    mission: Mission
+    rocket: Rocket
+    isBooked: Boolean!
+  }
+  type Rocket {
+    id: ID!
+    name: String
+    type: String
+  }
+  type User {
+    id: ID!
+    email: String!
+    trips: [Launch]!
+    token: String
+  }
+  type Mission {
+    name: String
+    missionPatch(size: PatchSize): String
+  }
 
-    enum PatchSize {
-        SMALL
-        LARGE
-    }
+  enum PatchSize {
+    SMALL
+    LARGE
+  }
 
-    type Query {
-        launches: [Launch]!
-        launch(id: ID!): Launch
-        me: User
-    }
+  type Query {
+    launches(
+        """
+        The numbe rof results to show, must be >=1. Default 20
+        """
+        pageSize: Int
+        """
+        If you add a cursor here, it will only return results after this cursor
+        """
+        after: String
 
-    type Mutation {
-        bookTrips(launchIds: [ID]!): TripUpdateResponse!
-        cancelTrip(launchId: ID!): TripUpdateResponse!
-        login(email: String): User
-    }
+    ): LaunchConnection!
+    launch(id: ID!): Launch
+    me: User
+  }
 
-    type TripUpdateReponse {
-        success: Boolean!
-        message: String
-        launches: [Launch]
-    }
+  type LaunchConnection {
+      
+      cursor: String!
+      hasMore: Boolean!
+      launches: [Launch]!
+  }
+
+
+  type Mutation {
+    bookTrips(launchIds: [ID]!): TripUpdateResponse!
+    cancelTrip(launchId: ID!): TripUpdateResponse!
+    login(email: String): User
+  }
+
+  type TripUpdateResponse {
+    success: Boolean!
+    message: String
+    launches: [Launch]
+  }
 `;
 
 module.exports = typeDefs;
